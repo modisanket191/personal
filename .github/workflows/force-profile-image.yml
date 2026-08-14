@@ -1,0 +1,32 @@
+name: Force profile image
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set exact profile image tag
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          replacement='<div class="hero-photo-wrap"><img alt="Sanket Modi" class="hero-photo" src="assets/images/profile.jpg"/></div>'
+          new,n=re.subn(r'<div class="hero-photo-wrap">.*?</div>', replacement, s, count=1, flags=re.S)
+          if n:
+              p.write_text(new,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then echo "Already fixed"; else git commit -m "Use profile image asset"; git push; fi
