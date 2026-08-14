@@ -1,0 +1,60 @@
+name: Merge contact section and add WhatsApp
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Update portfolio contact section
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Remove the standalone contact CTA section; keep the inquiry form as the single final contact section.
+          start = s.find('<section id="contact">')
+          if start != -1:
+              end = s.find('</section>', start)
+              if end != -1:
+                  s = s[:start] + s[end + len('</section>'):]
+
+          # Remove the older duplicate inquiry section, keeping the later v1 section.
+          marker = '<!-- inquiry-form-v1 -->'
+          first = s.find('<section id="inquiry">')
+          v1 = s.find(marker)
+          if first != -1 and v1 != -1 and first < v1:
+              end = s.find('</section>', first)
+              if end != -1:
+                  s = s[:first] + s[end + len('</section>'):]
+
+          # Add a WhatsApp link once to the remaining inquiry links.
+          whatsapp = '''<a class="inquiry-link" href="https://wa.me/919033418897?text=Hi%20Sanket%2C%20I%20came%20across%20your%20portfolio%20and%20would%20like%20to%20discuss%20an%20opportunity%20or%20project." target="_blank" rel="noopener"><span style="display:inline-flex;align-items:center;gap:9px"><svg width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.52 3.48A11.84 11.84 0 0 0 12.07 0C5.53 0 .2 5.32.2 11.87c0 2.09.55 4.13 1.59 5.92L.1 24l6.36-1.67a11.86 11.86 0 0 0 5.61 1.42h.01c6.54 0 11.86-5.32 11.86-11.87 0-3.17-1.23-6.15-3.42-8.4ZM12.08 21.72h-.01a9.84 9.84 0 0 1-5.02-1.38l-.36-.21-3.77.99 1.01-3.67-.23-.38a9.86 9.86 0 1 1 8.38 4.65Zm5.41-7.39c-.3-.15-1.77-.87-2.05-.97-.28-.1-.48-.15-.69.15-.2.3-.79.97-.97 1.17-.18.2-.36.23-.66.08-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.49-1.77-1.67-2.07-.18-.3-.02-.46.13-.61.13-.13.3-.36.45-.54.15-.18.2-.3.3-.51.1-.2.05-.38-.03-.53-.08-.15-.69-1.66-.94-2.27-.25-.6-.5-.52-.69-.53h-.59c-.2 0-.53.08-.81.38-.28.3-1.06 1.04-1.06 2.55s1.08 2.96 1.23 3.16c.15.2 2.12 3.24 5.14 4.54.72.31 1.28.5 1.72.64.72.23 1.37.2 1.88.12.58-.09 1.77-.72 2.02-1.41.25-.69.25-1.28.18-1.41-.08-.13-.28-.2-.59-.36Z"/></svg>Message me on WhatsApp →</span></a>'''
+          if 'Message me on WhatsApp' not in s:
+              target = '<div class="inquiry-links">'
+              pos = s.rfind(target)
+              if pos != -1:
+                  close = s.find('</div>', pos)
+                  if close != -1:
+                      s = s[:close] + whatsapp + s[close:]
+
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Merge contact section and add WhatsApp"
+          git push
