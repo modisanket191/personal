@@ -1,0 +1,106 @@
+name: Update portfolio
+on:
+  push:
+    branches: [master]
+permissions:
+  contents: write
+jobs:
+  update:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply portfolio updates
+        shell: bash
+        run: |
+          python -m pip install beautifulsoup4
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import re
+
+          path = Path('index.html')
+          raw = path.read_text(encoding='utf-8')
+          raw = raw.replace('<style>\n.projects-grid', '\n.projects-grid', 1)
+          soup = BeautifulSoup(raw, 'html.parser')
+
+          # Remove top-left personal wordmark.
+          brand = soup.select_one('.brand')
+          if brand:
+              brand.decompose()
+
+          # Keep the page in true top-to-bottom order.
+          main = soup.find('main')
+          if main:
+              sections = main.find_all('section', recursive=False)
+              by_id = {s.get('id'): s for s in sections}
+              hero = next((s for s in sections if 'hero' in (s.get('class') or [])), None)
+              architecture = next((s for s in sections if s.get('id') is None and 'hero' not in (s.get('class') or [])), None)
+              ordered = [hero, by_id.get('about'), by_id.get('experience'), by_id.get('projects'), architecture, by_id.get('stack'), by_id.get('chess'), by_id.get('contact')]
+              for s in ordered:
+                  if s:
+                      main.append(s)
+
+          # Portrait first in hero.
+          hero = soup.select_one('section.hero')
+          photo = soup.select_one('.hero-photo-wrap')
+          if hero and photo:
+              container = hero.select_one('.container')
+              if container:
+                  photo.extract(); container.insert(0, photo)
+
+          # Remove section numbering.
+          for e in soup.select('.eyebrow'):
+              e.string = re.sub(r'^\s*\d+\s*[—-]\s*', '', e.get_text(' ', strip=True))
+
+          # Navigation matches page order.
+          nav = soup.select_one('.navlinks')
+          if nav:
+              cta = nav.select_one('.nav-cta')
+              for a in list(nav.find_all('a')):
+                  if a is not cta:
+                      a.decompose()
+              for href, label in reversed([('#about','About'),('#experience','Experience'),('#projects','Work'),('#stack','Stack'),('#chess','Chess')]):
+                  a = soup.new_tag('a', href=href); a.string = label; nav.insert(0, a)
+
+          # Add company logos to experience.
+          logos = {
+              'Cognizant Technology Services':'https://www.cognizant.com/content/dam/cognizant_foundation/Dotcomimage/COG-Logo.svg',
+              'Tata Consultancy Services':'https://upload.wikimedia.org/wikipedia/commons/2/2e/Tata_Consultancy_Services_Logo.svg',
+              'IndiaNIC InfoTech Limited':'https://dcdh7ea8gkhvt.cloudfront.net/wp-content/themes/indianic/assets/images/indianic-black-logo.svg',
+              'Insigno Quipment Technologies':'https://quipment.in/wp-content/uploads/2020/01/logo.png'
+          }
+          for job in soup.select('.job'):
+              company = job.select_one('.company')
+              if not company or company.select_one('.company-brand'): continue
+              text = company.get_text(' ', strip=True)
+              key = next((k for k in logos if k in text), None)
+              if key:
+                  company.clear()
+                  wrap = soup.new_tag('span', attrs={'class':'company-brand'})
+                  img = soup.new_tag('img', attrs={'src':logos[key], 'alt':key+' logo', 'loading':'lazy', 'referrerpolicy':'no-referrer'})
+                  wrap.append(img)
+                  name = soup.new_tag('span'); name.string = text; wrap.append(name)
+                  company.append(wrap)
+
+          style = soup.find('style')
+          if style:
+              css = '''\n.company-brand{display:inline-flex;align-items:center;gap:12px}.company-brand img{width:92px;height:30px;object-fit:contain;object-position:left center;filter:grayscale(1) brightness(1.35);opacity:.88}.job:first-child .company-brand img{width:105px}@media(max-width:600px){.company-brand img{width:78px;height:26px}}html{scroll-padding-top:88px}section{scroll-margin-top:88px}\n'''
+              if '.company-brand{' not in style.get_text(): style.append(css)
+
+          # Ensure the Chess.com public API is present.
+          if not soup.find('script', string=lambda x: x and 'loadChessStats' in x):
+              script = soup.new_tag('script')
+              script.string = '''(async function loadChessStats(){const username="sanketmodi19";const status=document.getElementById("chess-status");const ids={rapid:document.getElementById("rapid-rating"),blitz:document.getElementById("blitz-rating"),bullet:document.getElementById("bullet-rating")};if(!status)return;try{const r=await fetch(`https://api.chess.com/pub/player/${encodeURIComponent(username)}/stats`);if(!r.ok)throw new Error(r.status);const d=await r.json();for(const k of Object.keys(ids)){const s=d["chess_"+k];ids[k].textContent=s&&s.last&&typeof s.last.rating==="number"?s.last.rating:"—"}status.textContent="Ratings retrieved from Chess.com public data."}catch(e){status.textContent="Chess.com ratings are temporarily unavailable."}})();'''
+              soup.body.append(script)
+
+          path.write_text(str(soup), encoding='utf-8')
+          PY
+      - name: Commit and remove temporary workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html .github/workflows/update-portfolio.yml
+          git rm .github/workflows/update-portfolio.yml
+          git commit -m 'Update personal portfolio'
+          git push
