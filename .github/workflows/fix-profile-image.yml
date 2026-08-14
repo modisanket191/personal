@@ -1,0 +1,46 @@
+name: Fix profile image reference
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  fix-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Point hero photo to repository asset
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          pattern = re.compile(r'<img(?=[^>]*class=["\']hero-photo["\'])[^>]*>')
+          def fix(m):
+              tag = m.group(0)
+              tag = re.sub(r'\s+src=["\'][^"\']*["\']', ' src="assets/images/profile.jpg"', tag, count=1)
+              if 'src=' not in tag:
+                  tag = tag[:-1] + ' src="assets/images/profile.jpg">'
+              return tag
+          new = pattern.sub(fix, s)
+          if new != s:
+              p.write_text(new, encoding='utf-8')
+          PY
+
+      - name: Commit fixed reference
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "No image reference change needed."
+          else
+            git commit -m "Fix profile image reference"
+            git push
+          fi
