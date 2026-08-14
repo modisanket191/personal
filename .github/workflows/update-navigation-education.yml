@@ -1,0 +1,118 @@
+name: Update Navigation and Education
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update page
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Replace the navigation with a branded horizontal navigation bar.
+          nav = '''<nav><div class="nav-inner container"><a class="nav-brand" href="#home">Sanket Modi</a><div class="navlinks"><a href="#about">About</a><a href="#experience">Experience</a><a href="#projects">Projects</a><a href="#skills">Skills</a><a href="#architecture">Architecture</a><a href="#chess">Chess</a><a href="#education">Education</a><a class="nav-cta" href="#contact">Contact</a></div></div></nav>'''
+          s = re.sub(r'<nav>.*?</nav>', nav, s, count=1, flags=re.S)
+
+          # Add a home anchor to the hero if it doesn't already have one.
+          if 'id="home"' not in s:
+              s = s.replace('<section class="hero">', '<section id="home" class="hero">', 1)
+
+          # Add stable section IDs when the matching section headings are present.
+          replacements = [
+              ('<section id="education">', '<section id="education">'),
+              ('<section class="about', '<section id="about" class="about'),
+          ]
+          if 'id="about"' not in s:
+              s = s.replace('<section class="about', '<section id="about" class="about', 1)
+          if 'id="experience"' not in s:
+              marker = '<div class="timeline">'
+              pos = s.find(marker)
+              if pos >= 0:
+                  start = s.rfind('<section', 0, pos)
+                  if start >= 0:
+                      end = s.find('>', start) + 1
+                      tag = s[start:end]
+                      if 'id=' not in tag:
+                          s = s[:start] + tag.replace('<section', '<section id="experience"', 1) + s[end:]
+          if 'id="projects"' not in s:
+              pos = s.find('<div class="projects-grid">')
+              if pos >= 0:
+                  start = s.rfind('<section', 0, pos)
+                  if start >= 0:
+                      end = s.find('>', start) + 1
+                      tag = s[start:end]
+                      if 'id=' not in tag:
+                          s = s[:start] + tag.replace('<section', '<section id="projects"', 1) + s[end:]
+          if 'id="skills"' not in s:
+              pos = s.find('<div class="stack">')
+              if pos >= 0:
+                  start = s.rfind('<section', 0, pos)
+                  if start >= 0:
+                      end = s.find('>', start) + 1
+                      tag = s[start:end]
+                      if 'id=' not in tag:
+                          s = s[:start] + tag.replace('<section', '<section id="skills"', 1) + s[end:]
+          if 'id="architecture"' not in s:
+              pos = s.find('<div class="arch">')
+              if pos >= 0:
+                  start = s.rfind('<section', 0, pos)
+                  if start >= 0:
+                      end = s.find('>', start) + 1
+                      tag = s[start:end]
+                      if 'id=' not in tag:
+                          s = s[:start] + tag.replace('<section', '<section id="architecture"', 1) + s[end:]
+          if 'id="chess"' not in s:
+              pos = s.find('<div class="chess-card">')
+              if pos >= 0:
+                  start = s.rfind('<section', 0, pos)
+                  if start >= 0:
+                      end = s.find('>', start) + 1
+                      tag = s[start:end]
+                      if 'id=' not in tag:
+                          s = s[:start] + tag.replace('<section', '<section id="chess"', 1) + s[end:]
+
+          # Ensure the contact/inquiry section has the Contact anchor.
+          if 'id="contact"' not in s:
+              pos = s.find('<div class="inquiry-wrap">')
+              if pos >= 0:
+                  start = s.rfind('<section', 0, pos)
+                  if start >= 0:
+                      end = s.find('>', start) + 1
+                      tag = s[start:end]
+                      if 'id=' not in tag:
+                          s = s[:start] + tag.replace('<section', '<section id="contact"', 1) + s[end:]
+
+          # Education must appear immediately before the inquiry/contact section.
+          education = '''<section id="education"><div class="container"><div class="section-top"><div><div class="eyebrow">Education</div><h2>Where the engineering foundation began.</h2></div><p class="section-intro">A Bachelor of Engineering in Information Technology, providing the foundation for a career spanning software engineering, architecture and technical leadership.</p></div><div class="card" style="max-width:900px"><div class="eyebrow">Bachelor of Engineering (B.E.)</div><h3 style="font-family:\"Space Grotesk\";font-size:30px;letter-spacing:-.04em;margin-bottom:7px">Information Technology</h3><p style="color:var(--accent2);font-size:14px;font-weight:600;margin-top:0">Birla Vishvakarma Engineering College (BVM)</p><p style="color:var(--muted);font-size:14px;margin-top:5px">Vallabh Vidyanagar, Gujarat</p></div></div></section>'''
+          s = re.sub(r'<section id="education">.*?</section>\s*(?=<section id="contact"|<section[^>]*class="[^"]*inquiry)', '', s, count=1, flags=re.S)
+          contact_pos = s.find('<section id="contact"')
+          if contact_pos < 0:
+              contact_pos = s.find('<section', s.find('<div class="inquiry-wrap">') - 500)
+          if contact_pos >= 0:
+              s = s[:contact_pos] + education + '\n' + s[contact_pos:]
+          elif 'id="education"' not in s:
+              s = s.replace('</main>', education + '\n</main>', 1)
+
+          # Navigation styling: name on the left, links on the right, all horizontal.
+          css = '''\n.nav-inner{height:72px;display:flex;align-items:center;justify-content:space-between;gap:30px}.nav-brand{font-family:"Space Grotesk";font-size:18px;font-weight:600;letter-spacing:-.03em;color:var(--text);white-space:nowrap}.nav-brand:hover{color:var(--accent)}@media(max-width:800px){.nav-inner{justify-content:space-between}.nav-brand{font-size:16px}.navlinks{gap:10px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}.navlinks::-webkit-scrollbar{display:none}.navlinks a:not(.nav-cta){display:inline-block}}\n'''
+          if '.nav-inner{' not in s:
+              s = s.replace('</style>', css + '</style>', 1)
+
+          p.write_text(s, encoding='utf-8')
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then echo "No changes needed"; else git add index.html && git commit -m "Improve navigation and position education" && git push; fi
