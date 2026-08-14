@@ -86,6 +86,7 @@
     </div>
   </div>
 </section>
+<section id="education"><div class="container"><div class="section-top"><div><div class="eyebrow">Education</div><h2>Where the engineering foundation began.</h2></div><p class="section-intro">A Bachelor of Engineering in Information Technology, providing the foundation for a career spanning software engineering, architecture and technical leadership.</p></div><div class="card" style="max-width:900px"><div class="eyebrow">Bachelor of Engineering (B.E.)</div><h3 style="font-family:"Space Grotesk";font-size:30px;letter-spacing:-.04em;margin-bottom:7px">Information Technology</h3><p style="color:var(--accent2);font-size:14px;font-weight:600;margin-top:0">Birla Vishvakarma Engineering College (BVM)</p><p style="color:var(--muted);font-size:14px;margin-top:5px">Vallabh Vidyanagar, Gujarat</p></div></div></section>
 </main><footer class="container"><span>© 2026 Sanket Modi</span></footer>
 <script>
 (async function(){const u="sanketmodi19",s=document.getElementById("chess-status"),e={rapid:document.getElementById("rapid-rating"),blitz:document.getElementById("blitz-rating"),bullet:document.getElementById("bullet-rating")};try{const r=await fetch(`https://api.chess.com/pub/player/${encodeURIComponent(u)}/stats`);if(!r.ok)throw Error(r.status);const d=await r.json();for(const k of Object.keys(e)){const x=d["chess_"+k];e[k].textContent=x?.last?.rating??"—"}s.textContent="Ratings retrieved from Chess.com public data."}catch(x){s.textContent="Chess.com ratings are temporarily unavailable."}})();
