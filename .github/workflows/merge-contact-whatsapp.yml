@@ -58,3 +58,5 @@ jobs:
           git add index.html
           git diff --cached --quiet || git commit -m "Merge contact section and add WhatsApp"
           git push
+
+          # Triggered by a repository push; safe to re-run because the edits are idempotent.
