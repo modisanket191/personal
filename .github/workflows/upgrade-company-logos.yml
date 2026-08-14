@@ -1,0 +1,41 @@
+name: Upgrade company logos
+on:
+  push:
+    branches: [master]
+permissions:
+  contents: write
+jobs:
+  logos:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download full brand logos
+        shell: bash
+        run: |
+          set -e
+          mkdir -p assets/logos
+          curl -L --fail --silent --show-error 'https://commons.wikimedia.org/wiki/Special:Redirect/file/Cognizant_logo_2022.svg' -o assets/logos/cognizant.svg
+          curl -L --fail --silent --show-error 'https://commons.wikimedia.org/wiki/Special:Redirect/file/TCS_Logo_(cropped).jpg' -o assets/logos/tcs.jpg
+          curl -L --fail --silent --show-error 'https://dcdh7ea8gkhvt.cloudfront.net/wp-content/themes/indianic/assets/images/indianic-black-logo.svg' -o assets/logos/indianic.svg || true
+          curl -L --fail --silent --show-error 'https://www.google.com/s2/favicons?domain=quipment.in&sz=128' -o assets/logos/quipment.png
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('assets/logos/cognizant.png','assets/logos/cognizant.svg')
+          s=s.replace('assets/logos/tcs.png','assets/logos/tcs.jpg')
+          s=s.replace('assets/logos/indianic.png','assets/logos/indianic.svg')
+          # Ensure the logo image is not forced into a tiny badge.
+          s=s.replace('.company-logo-mark{width:120px;height:38px;', '.company-logo-mark{width:150px;height:42px;')
+          s=s.replace('@media(max-width:600px){.company-logo-mark{width:90px;height:30px}', '@media(max-width:600px){.company-logo-mark{width:105px;height:32px}')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit and remove workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html assets/logos .github/workflows/upgrade-company-logos.yml
+          git rm .github/workflows/upgrade-company-logos.yml
+          git commit -m 'Use full company logos in experience timeline'
+          git push
