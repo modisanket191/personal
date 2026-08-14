@@ -1,0 +1,35 @@
+name: Add inquiry form
+on:
+  push:
+    branches: [master]
+permissions:
+  contents: write
+jobs:
+  add-form:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add inquiry form
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          marker='<!-- inquiry-form-v1 -->'
+          if marker in s:
+              raise SystemExit(0)
+          css='''\n/* Inquiry form */\n.inquiry-wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:18px;align-items:stretch}\n.inquiry-copy,.inquiry-form{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:32px}\n.inquiry-copy h3{font-family:"Space Grotesk";font-size:30px;letter-spacing:-.04em;margin-bottom:12px}\n.inquiry-copy p{color:var(--muted);font-size:14px;line-height:1.8}\n.inquiry-links{display:grid;gap:10px;margin-top:25px}\n.inquiry-link{padding:12px 14px;border:1px solid var(--line);border-radius:10px;color:var(--soft);font-size:13px}\n.inquiry-form{display:grid;gap:14px}\n.inquiry-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}\n.inquiry-field{display:grid;gap:7px}\n.inquiry-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}\n.inquiry-field input,.inquiry-field select,.inquiry-field textarea{width:100%;border:1px solid var(--line);background:#0b0d10;color:var(--text);border-radius:10px;padding:12px 13px;font:inherit;font-size:13px;outline:none}\n.inquiry-field input:focus,.inquiry-field select:focus,.inquiry-field textarea:focus{border-color:var(--accent)}\n.inquiry-field textarea{min-height:135px;resize:vertical}\n.inquiry-submit{border:0;background:var(--text);color:#0b0d10;padding:13px 18px;border-radius:10px;font-weight:700;font:inherit;cursor:pointer}\n.inquiry-note{font-size:11px;color:#68727d;line-height:1.6}\n@media(max-width:800px){.inquiry-wrap{grid-template-columns:1fr}.inquiry-row{grid-template-columns:1fr}.inquiry-copy,.inquiry-form{padding:24px}}\n'''
+          form='''<!-- inquiry-form-v1 -->\n<section id="inquiry">\n  <div class="container">\n    <div class="section-top"><div><div class="eyebrow">Get in touch</div><h2>Let's talk</h2></div><p class="section-intro">Have a project, architecture challenge, or opportunity in mind? Send me a message.</p></div>\n    <div class="inquiry-wrap">\n      <div class="inquiry-copy">\n        <h3>Open to meaningful conversations.</h3>\n        <p>Whether it's a technical leadership opportunity, architecture discussion, or a project that needs hands-on engineering, I'd be happy to hear from you.</p>\n        <div class="inquiry-links">\n          <a class="inquiry-link" href="mailto:sanketmodi19@gmail.com">Email me directly →</a>\n          <a class="inquiry-link" href="https://www.linkedin.com/in/modisanket191/" target="_blank" rel="noopener">Connect on LinkedIn →</a>\n        </div>\n      </div>\n      <form class="inquiry-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">\n        <div class="inquiry-row">\n          <div class="inquiry-field"><label for="inquiry-name">Name</label><input id="inquiry-name" name="name" type="text" autocomplete="name" required placeholder="Your name"></div>\n          <div class="inquiry-field"><label for="inquiry-email">Email</label><input id="inquiry-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com"></div>\n        </div>\n        <div class="inquiry-row">\n          <div class="inquiry-field"><label for="inquiry-company">Company / Organization</label><input id="inquiry-company" name="company" type="text" autocomplete="organization" placeholder="Optional"></div>\n          <div class="inquiry-field"><label for="inquiry-type">Inquiry type</label><select id="inquiry-type" name="inquiry_type"><option>Project / Consulting</option><option>Engineering / Architecture role</option><option>Collaboration</option><option>Other</option></select></div>\n        </div>\n        <div class="inquiry-field"><label for="inquiry-message">Message</label><textarea id="inquiry-message" name="message" required placeholder="Tell me a little about what you have in mind..."></textarea></div>\n        <button class="inquiry-submit" type="submit">Send inquiry →</button>\n        <p class="inquiry-note">Your message will be handled privately. Form delivery will be activated after the Formspree endpoint is connected.</p>\n      </form>\n    </div>\n  </div>\n</section>\n'''
+          if '</style>' in s:
+              s=s.replace('</style>',css+'</style>',1)
+          s=s.replace('</main>',form+'</main>',1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet || git commit -m 'Add portfolio inquiry form'
+          git push
