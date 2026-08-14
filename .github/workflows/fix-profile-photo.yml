@@ -1,0 +1,35 @@
+name: Fix profile photo reference
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  fix-photo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Point profile photo to repository asset
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = 'src="data:image/jpeg;base64,{{PHOTO}}"'
+          new = 'src="assets/images/profile.jpg"'
+          if old in s:
+              p.write_text(s.replace(old, new), encoding='utf-8')
+          PY
+
+      - name: Commit photo reference
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Fix profile photo asset reference"
+          git push
