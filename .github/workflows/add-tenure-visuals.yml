@@ -1,0 +1,116 @@
+name: Add experience tenure visuals
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add tenure visuals
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          html = p.read_text(encoding='utf-8')
+
+          css = r'''
+          /* Experience tenure visual */
+          .tenure-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+          .tenure-date{font-size:12px;color:var(--muted)}
+          .tenure-sep{color:#4c5662;font-size:12px}
+          .tenure-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border:1px solid #394550;border-radius:999px;background:#0d1116;color:#dce4ec;font-size:11px;font-weight:600;white-space:nowrap}
+          .tenure-badge:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent2);box-shadow:0 0 0 3px rgba(167,243,208,.08)}
+          .tenure-track{height:5px;background:#29313a;border-radius:99px;overflow:hidden;margin-top:10px;max-width:620px}
+          .tenure-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:var(--tenure-width,50%);transition:width .5s ease}
+          .job-tenure{margin-top:1px}
+          .tenure-legend{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:35px;padding:14px 18px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(145deg,var(--surface2),var(--surface));color:var(--muted);font-size:11px}
+          .tenure-legend strong{color:var(--soft);font-weight:600}
+          .legend-item{display:inline-flex;align-items:center;gap:7px}
+          .legend-dot{width:28px;height:5px;border-radius:99px;background:var(--accent)}
+          .legend-dot.long{background:var(--accent2)}
+          .legend-dot.short{background:#53606d}
+          .company-brand{gap:8px!important;align-items:center!important}
+          .company-logo-mark{width:78px!important;height:34px!important;flex:none!important}
+          .company-logo-mark img{max-width:68px!important;max-height:28px!important;object-fit:contain!important}
+          @media(max-width:600px){
+            .tenure-meta{gap:7px}
+            .tenure-track{max-width:100%}
+            .company-brand{gap:8px!important}
+            .company-logo-mark{width:64px!important;height:30px!important}
+            .company-logo-mark img{max-width:56px!important;max-height:24px!important}
+          }
+          '''
+
+          if '/* Experience tenure visual */' not in html:
+              html = html.replace('</style>', css + '\n</style>', 1)
+
+          js = r'''
+          <script>
+          (function addExperienceTenure(){
+            const jobs=[...document.querySelectorAll('.timeline .job')];
+            if(!jobs.length)return;
+            const months={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+            function parse(s){
+              const m=s.trim().match(/([A-Za-z]{3,9})\s+(\d{4})/i);
+              if(!m)return null;
+              return new Date(Number(m[2]),months[m[1].slice(0,3).toLowerCase()]||0,1);
+            }
+            function duration(start,end){
+              let m=(end.getFullYear()-start.getFullYear())*12+(end.getMonth()-start.getMonth());
+              if(m<0)m=0;
+              return {months:m,years:Math.floor(m/12),remaining:m%12};
+            }
+            const data=jobs.map(job=>{
+              const date=job.querySelector('.date');
+              const text=date?date.textContent.trim():'';
+              const parts=text.split(/\s*[—-]\s*/);
+              const start=parse(parts[0]||'');
+              const endText=parts[1]||'';
+              const end=/present/i.test(endText)?new Date():parse(endText);
+              return {job,date,text,start,end,d:start&&end?duration(start,end):{months:0,years:0,remaining:0}};
+            });
+            const max=Math.max(...data.map(x=>x.d.months),1);
+            data.forEach(x=>{
+              if(!x.date||!x.start||!x.end)return;
+              x.date.style.display='none';
+              const meta=document.createElement('div');
+              meta.className='tenure-meta job-tenure';
+              const dateSpan=document.createElement('span');dateSpan.className='tenure-date';dateSpan.textContent=x.text;
+              const sep=document.createElement('span');sep.className='tenure-sep';sep.textContent='|';
+              const badge=document.createElement('span');badge.className='tenure-badge';
+              const d=x.d; badge.textContent=d.years?`${d.years} yr${d.years>1?'s':''}${d.remaining?` ${d.remaining} mo${d.remaining>1?'s':''}`:''}`:`${d.remaining} mo${d.remaining>1?'s':''}`;
+              meta.append(dateSpan,sep,badge);
+              const track=document.createElement('div');track.className='tenure-track';
+              const fill=document.createElement('div');fill.className='tenure-fill';fill.style.setProperty('--tenure-width',`${Math.max(10,(x.d.months/max)*100)}%`);track.append(fill);
+              const company=x.job.querySelector('.company');
+              if(company){company.insertAdjacentElement('afterend',meta);meta.insertAdjacentElement('afterend',track)}
+            });
+            if(!document.querySelector('.tenure-legend')){
+              const timeline=document.querySelector('.timeline');
+              if(timeline){const l=document.createElement('div');l.className='tenure-legend';l.innerHTML='<strong>Experience at a glance</strong><span class="legend-item"><i class="legend-dot long"></i> Longer tenure</span><span class="legend-item"><i class="legend-dot"></i> Medium tenure</span><span class="legend-item"><i class="legend-dot short"></i> Shorter tenure</span><span>Bar length reflects time in each role.</span>';timeline.append(l)}
+            }
+          })();
+          </script>
+          '''
+          if 'function addExperienceTenure' not in html:
+              html=html.replace('</body>',js+'\n</body>',1)
+          p.write_text(html,encoding='utf-8')
+
+      - name: Commit changes and remove workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html .github/workflows/add-tenure-visuals.yml
+          git rm .github/workflows/add-tenure-visuals.yml
+          git commit -m 'Add experience tenure visualization'
+          git push
