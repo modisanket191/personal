@@ -23,6 +23,14 @@ jobs:
               p.write_text(fixed, encoding='utf-8')
               raise SystemExit(0)
 
+          # Improve the EY Canvas project description when the older short copy is present.
+          old='A global enterprise audit platform supporting complex audit workflows at scale. I own end-to-end delivery for a feature team, translating business requirements into UI, API, cloud and data-layer changes. My work includes a key Drag &amp; Drop capability, workflow and performance improvements, secure configuration, database migration and integration across multiple enterprise applications.'
+          new='EY Canvas is a global enterprise audit platform used by thousands of audit professionals to plan, execute and manage complex audit engagements. As a Technical Lead and Solution Architect, I work across the application stack to translate business requirements into scalable technical solutions and drive features from design through production. My responsibilities span architecture, technical design, development, integration and release delivery. I have worked on core application capabilities including a sophisticated Drag &amp; Drop experience, workflow enhancements, performance improvements, API development, secure configuration, database migration and integration with multiple enterprise applications. The platform operates within a distributed ecosystem of 5+ integrated applications, leveraging AWS Lambda, SQS/SNS, APIs, storage services and .NET Core/React. I also lead a cross-functional engineering environment, collaborating closely with business stakeholders, architects, developers and QA teams to deliver reliable releases across the platform.'
+          if old in s:
+              s=s.replace(old,new,1)
+              p.write_text(s, encoding='utf-8')
+              raise SystemExit(0)
+
           # Do not inject a second form if the section already exists.
           if '<section id="inquiry">' in s:
               raise SystemExit(0)
@@ -40,7 +48,7 @@ jobs:
       - name: Commit changes
         run: |
           git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.email '41898282+users.noreply.github.com'
           git add index.html
-          git diff --cached --quiet || git commit -m 'Fix Formspree inquiry endpoint'
+          git diff --cached --quiet || git commit -m 'Improve EY Canvas project content'
           git push
