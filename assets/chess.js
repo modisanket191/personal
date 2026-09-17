@@ -1,7 +1,7 @@
 (() => {
-  // Keep the portfolio navigation permanently visible while scrolling.
+  // Keep the portfolio navigation pinned while scrolling.
   const navStyle = document.createElement('style');
-  navStyle.textContent = `header { position: fixed !important; top: 0; left: 0; right: 0; width: 100%; } body { padding-top: 72px; }`;
+  navStyle.textContent = `header { position: sticky !important; top: 0; z-index: 100; width: 100%; }`;
   document.head.appendChild(navStyle);
 
   const username = 'sanketmodi19';
