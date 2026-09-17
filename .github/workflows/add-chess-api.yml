@@ -1,15 +1,16 @@
 name: Add Chess.com API integration
 
 on:
-  push:
-    branches: [master]
+  workflow_run:
+    workflows: ["pages build and deployment"]
+    types: [completed]
 
 permissions:
   contents: write
 
 jobs:
   add-chess-api:
-    if: contains(github.event.head_commit.message, 'Add Chess.com API integration')
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,7 +56,6 @@ jobs:
               })
               .then(render)
               .catch(() => {
-                // Chess.com also supports JSONP, which provides a browser fallback if CORS blocks fetch().
                 const callbackName = '__chessStatsCallback';
                 window[callbackName] = render;
                 const script = document.createElement('script');
@@ -72,5 +72,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html assets/chess.js
+          if git diff --quiet; then exit 0; fi
           git commit -m "Wire Chess.com live ratings [skip ci]"
           git push
