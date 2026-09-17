@@ -1,0 +1,76 @@
+name: Add Chess.com API integration
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  add-chess-api:
+    if: contains(github.event.head_commit.message, 'Add Chess.com API integration')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add Chess.com API script
+        shell: python
+        run: |
+          from pathlib import Path
+
+          html = Path('index.html')
+          s = html.read_text(encoding='utf-8')
+          script_tag = '<script src="assets/chess.js"></script>'
+          if script_tag not in s:
+              s = s.replace('</body>', script_tag + '\n</body>', 1)
+              html.write_text(s, encoding='utf-8')
+
+          js = r'''(() => {
+            const username = 'sanketmodi19';
+            const endpoint = `https://api.chess.com/pub/player/${username}/stats`;
+
+            const setRating = (id, value) => {
+              const el = document.getElementById(id);
+              if (el) el.textContent = value ?? '—';
+            };
+
+            const render = (data) => {
+              setRating('rapid-rating', data?.chess_rapid?.last?.rating);
+              setRating('blitz-rating', data?.chess_blitz?.last?.rating);
+              setRating('bullet-rating', data?.chess_bullet?.last?.rating);
+              const status = document.getElementById('chess-status');
+              if (status) status.textContent = 'Live ratings from Chess.com public API';
+            };
+
+            const showError = () => {
+              const status = document.getElementById('chess-status');
+              if (status) status.textContent = 'Chess.com ratings are temporarily unavailable.';
+            };
+
+            fetch(endpoint, { headers: { Accept: 'application/json' } })
+              .then(r => {
+                if (!r.ok) throw new Error(`Chess.com API returned ${r.status}`);
+                return r.json();
+              })
+              .then(render)
+              .catch(() => {
+                // Chess.com also supports JSONP, which provides a browser fallback if CORS blocks fetch().
+                const callbackName = '__chessStatsCallback';
+                window[callbackName] = render;
+                const script = document.createElement('script');
+                script.src = `${endpoint}?callback=${callbackName}`;
+                script.onerror = showError;
+                document.head.appendChild(script);
+              });
+          })();
+          '''
+          Path('assets/chess.js').write_text(js, encoding='utf-8')
+
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/chess.js
+          git commit -m "Wire Chess.com live ratings [skip ci]"
+          git push
