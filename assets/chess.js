@@ -1,7 +1,9 @@
 (() => {
-  // Keep the portfolio navigation pinned while scrolling.
+  // Keep the portfolio navigation pinned while scrolling and stack section headings vertically.
   const navStyle = document.createElement('style');
   navStyle.textContent = `header { position: sticky !important; top: 0; z-index: 100; width: 100%; }
+    .section-top { display:block !important; }
+    .section-top .section-intro { margin-top:16px; max-width:650px; }
     #education .education-timeline-date { display:inline-flex; align-items:center; margin:14px 0 10px; padding:6px 11px; border:1px solid #394550; border-radius:999px; background:#0d1116; color:#dce4ec; font-size:11px; font-weight:600; letter-spacing:.03em; }
     #education .education-timeline-date::before { content:''; width:7px; height:7px; border-radius:50%; background:#a7f3d0; margin-right:8px; }
     #education .education-degree + .education-timeline-date { margin-top:8px; }
