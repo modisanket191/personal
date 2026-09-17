@@ -23,6 +23,24 @@ header, nav { max-width: 100%; overflow: hidden; }
   .navlinks a { white-space: nowrap; }
   .nav-cta { flex-shrink: 0; }
 }
+
+/* Inquiry form */
+.inquiry-wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:18px;align-items:stretch}
+.inquiry-copy,.inquiry-form{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:32px}
+.inquiry-copy h3{font-family:"Space Grotesk";font-size:30px;letter-spacing:-.04em;margin-bottom:12px}
+.inquiry-copy p{color:var(--muted);font-size:14px;line-height:1.8}
+.inquiry-links{display:grid;gap:10px;margin-top:25px}
+.inquiry-link{padding:12px 14px;border:1px solid var(--line);border-radius:10px;color:var(--soft);font-size:13px}
+.inquiry-form{display:grid;gap:14px}
+.inquiry-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.inquiry-field{display:grid;gap:7px}
+.inquiry-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.inquiry-field input,.inquiry-field select,.inquiry-field textarea{width:100%;border:1px solid var(--line);background:#0b0d10;color:var(--text);border-radius:10px;padding:12px 13px;font:inherit;font-size:13px;outline:none}
+.inquiry-field input:focus,.inquiry-field select:focus,.inquiry-field textarea:focus{border-color:var(--accent)}
+.inquiry-field textarea{min-height:135px;resize:vertical}
+.inquiry-submit{border:0;background:var(--text);color:#0b0d10;padding:13px 18px;border-radius:10px;font-weight:700;font:inherit;cursor:pointer}
+.inquiry-note{font-size:11px;color:#68727d;line-height:1.6}
+@media(max-width:800px){.inquiry-wrap{grid-template-columns:1fr}.inquiry-row{grid-template-columns:1fr}.inquiry-copy,.inquiry-form{padding:24px}}
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5RMZ01LYWV"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5RMZ01LYWV');</script>
 <style id="hide-tenure-indicators">.tenure-track,.tenure-legend{display:none!important}</style></head>
@@ -38,5 +56,34 @@ header, nav { max-width: 100%; overflow: hidden; }
 <section id="chess"><div class="container"><div class="section-top"><div><div class="eyebrow">Beyond Engineering</div><h2>A little strategy away from the keyboard.</h2></div><p class="section-intro">Chess is one of the interests I keep alongside engineering — a different way of thinking about patterns, trade-offs and long-term decisions.</p></div><div class="chess-card"><div class="chess-mark">♟</div><div class="chess-content"><div class="eyebrow">Chess.com · Live public profile</div><h3>@sanketmodi19</h3><p id="chess-status">Loading current ratings…</p><div class="chess-ratings"><div class="chess-rating"><span>Rapid</span><strong id="rapid-rating">—</strong></div><div class="chess-rating"><span>Blitz</span><strong id="blitz-rating">—</strong></div><div class="chess-rating"><span>Bullet</span><strong id="bullet-rating">—</strong></div></div><a class="btn primary" href="https://www.chess.com/member/sanketmodi19" target="_blank" rel="noopener">View my Chess.com profile ↗</a></div></div></div></section>
 <section id="education"><div class="container"><div class="section-top"><div><div class="eyebrow">Education</div><h2>Where the engineering foundation began.</h2></div><p class="section-intro">A Bachelor of Engineering in Information Technology, providing the foundation for a career spanning software engineering, architecture and technical leadership.</p></div><div class="card" style="max-width:900px"><div class="eyebrow">Bachelor of Engineering (B.E.)</div><h3 style="font-family:"Space Grotesk";font-size:30px;letter-spacing:-.04em;margin-bottom:7px">Information Technology</h3><p style="color:var(--accent2);font-size:14px;font-weight:600;margin-top:0">Birla Vishvakarma Engineering College (BVM)</p><p style="color:var(--muted);font-size:14px;margin-top:5px">Vallabh Vidyanagar, Gujarat</p></div></div></section>
 <section id="contact"><div class="container"><div class="section-top"><div><div class="eyebrow">Get in touch</div><h2>Let's talk</h2></div><p class="section-intro">Have a project, architecture challenge, or opportunity in mind? Send me a message.</p></div><div class="inquiry-wrap"><div class="inquiry-copy"><h3>Open to meaningful conversations.</h3><p>Whether it's a technical leadership opportunity, architecture discussion, or a project that needs hands-on engineering, I'd be happy to hear from you.</p><div class="inquiry-links"><a class="inquiry-link" href="mailto:sanketmodi19@gmail.com">Email me directly →</a><a class="inquiry-link" href="https://www.linkedin.com/in/modisanket191/" target="_blank" rel="noopener">Connect on LinkedIn →</a><a class="inquiry-link" href="https://wa.me/919033418897?text=Hi%20Sanket%2C%20I%20came%20across%20your%20portfolio%20and%20would%20like%20to%20discuss%20an%20opportunity%20or%20project." target="_blank" rel="noopener">Message me on WhatsApp →</a></div></div><form class="inquiry-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST"><div class="inquiry-row"><div class="inquiry-field"><label for="inquiry-name">Name</label><input id="inquiry-name" name="name" type="text" autocomplete="name" required placeholder="Your name"></div><div class="inquiry-field"><label for="inquiry-email">Email</label><input id="inquiry-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com"></div></div><div class="inquiry-row"><div class="inquiry-field"><label for="inquiry-company">Company / Organization</label><input id="inquiry-company" name="company" type="text" autocomplete="organization" placeholder="Optional"></div><div class="inquiry-field"><label for="inquiry-type">Inquiry type</label><select id="inquiry-type" name="inquiry_type"><option>Project / Consulting</option><option>Engineering / Architecture role</option><option>Collaboration</option><option>Other</option></select></div></div><div class="inquiry-field"><label for="inquiry-message">Message</label><textarea id="inquiry-message" name="message" required placeholder="Tell me a little about what you have in mind..."></textarea></div><button class="inquiry-submit" type="submit">Send inquiry →</button><p class="inquiry-note">Your message will be handled privately. Form delivery will be activated after the Formspree endpoint is connected.</p></form></div></div></section>
+<!-- inquiry-form-v1 -->
+<section id="inquiry">
+  <div class="container">
+    <div class="section-top"><div><div class="eyebrow">Get in touch</div><h2>Let's talk</h2></div><p class="section-intro">Have a project, architecture challenge, or opportunity in mind? Send me a message.</p></div>
+    <div class="inquiry-wrap">
+      <div class="inquiry-copy">
+        <h3>Open to meaningful conversations.</h3>
+        <p>Whether it's a technical leadership opportunity, architecture discussion, or a project that needs hands-on engineering, I'd be happy to hear from you.</p>
+        <div class="inquiry-links">
+          <a class="inquiry-link" href="mailto:sanketmodi19@gmail.com">Email me directly →</a>
+          <a class="inquiry-link" href="https://www.linkedin.com/in/modisanket191/" target="_blank" rel="noopener">Connect on LinkedIn →</a>
+        </div>
+      </div>
+      <form class="inquiry-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <div class="inquiry-row">
+          <div class="inquiry-field"><label for="inquiry-name">Name</label><input id="inquiry-name" name="name" type="text" autocomplete="name" required placeholder="Your name"></div>
+          <div class="inquiry-field"><label for="inquiry-email">Email</label><input id="inquiry-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+        </div>
+        <div class="inquiry-row">
+          <div class="inquiry-field"><label for="inquiry-company">Company / Organization</label><input id="inquiry-company" name="company" type="text" autocomplete="organization" placeholder="Optional"></div>
+          <div class="inquiry-field"><label for="inquiry-type">Inquiry type</label><select id="inquiry-type" name="inquiry_type"><option>Project / Consulting</option><option>Engineering / Architecture role</option><option>Collaboration</option><option>Other</option></select></div>
+        </div>
+        <div class="inquiry-field"><label for="inquiry-message">Message</label><textarea id="inquiry-message" name="message" required placeholder="Tell me a little about what you have in mind..."></textarea></div>
+        <button class="inquiry-submit" type="submit">Send inquiry →</button>
+        <p class="inquiry-note">Your message will be handled privately. Form delivery will be activated after the Formspree endpoint is connected.</p>
+      </form>
+    </div>
+  </div>
+</section>
 </main><footer class="container"><span>© 2026 Sanket Modi</span></footer>
 </body></html>
