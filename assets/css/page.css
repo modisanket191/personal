@@ -1,0 +1,34 @@
+.tenure-track,.tenure-legend{display:none!important}
+html, body { overflow-x: hidden; max-width: 100%; }
+header, nav { max-width: 100%; overflow: hidden; }
+@media (max-width: 800px) {
+  nav { justify-content: flex-end; overflow: hidden; }
+  .navlinks { max-width: 100%; flex-wrap: wrap; justify-content: flex-end; overflow: hidden; }
+  .navlinks a { white-space: nowrap; }
+  .nav-cta { flex-shrink: 0; }
+}
+
+.inquiry-wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:18px;align-items:stretch}
+.inquiry-copy,.inquiry-form{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:32px}
+.inquiry-copy h3{font-family:"Space Grotesk";font-size:30px;letter-spacing:-.04em;margin-bottom:12px}
+.inquiry-copy p{color:var(--muted);font-size:14px;line-height:1.8}
+.inquiry-links{display:grid;gap:10px;margin-top:25px}
+.inquiry-link{padding:12px 14px;border:1px solid var(--line);border-radius:10px;color:var(--soft);font-size:13px}
+.inquiry-form{display:grid;gap:14px}
+.inquiry-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.inquiry-field{display:grid;gap:7px}
+.inquiry-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.inquiry-field input,.inquiry-field select,.inquiry-field textarea{width:100%;border:1px solid var(--line);background:#0b0d10;color:var(--text);border-radius:10px;padding:12px 13px;font:inherit;font-size:13px;outline:none}
+.inquiry-field input:focus,.inquiry-field select:focus,.inquiry-field textarea:focus{border-color:var(--accent)}
+.inquiry-field textarea{min-height:135px;resize:vertical}
+.inquiry-submit{border:0;background:var(--text);color:#0b0d10;padding:13px 18px;border-radius:10px;font-weight:700;font:inherit;cursor:pointer}
+.inquiry-note{font-size:11px;color:#68727d;line-height:1.6}
+.inquiry-success{display:none;font-size:13px;color:var(--accent2);padding:12px 14px;border:1px solid var(--line);border-radius:10px}
+@media(max-width:800px){.inquiry-wrap{grid-template-columns:1fr}.inquiry-row{grid-template-columns:1fr}.inquiry-copy,.inquiry-form{padding:24px}}
+
+.education-card{max-width:900px}
+.education-degree{font-family:"Space Grotesk";font-size:30px;letter-spacing:-.04em;margin-bottom:7px}
+.education-school{color:var(--accent2);font-size:14px;font-weight:600;margin-top:0}
+.education-location{color:var(--muted);font-size:14px;margin-top:5px}
+.education-divider{height:1px;background:var(--line);margin:28px 0}
+.whatsapp-link{display:inline-flex;align-items:center;gap:9px}
