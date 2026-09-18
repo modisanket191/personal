@@ -13,7 +13,17 @@
 <link rel="stylesheet" href="assets/css/page.css"/>
 <link rel="stylesheet" href="assets/css/chess.css"/>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5RMZ01LYWV"></script><script src="assets/js/analytics.js"></script>
-<style id="hide-tenure-indicators">.tenure-track,.tenure-legend{display:none!important}</style></head>
+<style id="hide-tenure-indicators">.tenure-track,.tenure-legend{display:none!important}
+/* Mobile overflow fix */
+html, body { overflow-x: hidden; max-width: 100%; }
+header, nav { max-width: 100%; overflow: hidden; }
+@media (max-width: 800px) {
+  nav { justify-content: flex-end; overflow: hidden; }
+  .navlinks { max-width: 100%; flex-wrap: wrap; justify-content: flex-end; overflow: hidden; }
+  .navlinks a { white-space: nowrap; }
+  .nav-cta { flex-shrink: 0; }
+}
+</style></head>
 <body>
 <header><div class="container"><nav><div class="nav-inner container"><a class="nav-brand" href="#home">Sanket Modi</a><div class="navlinks"><a href="#about">About</a><a href="#experience">Experience</a><a href="#projects">Projects</a><a href="#stack">Skills</a><a href="#architecture">Architecture</a><a href="#chess">Chess</a><a href="#education">Education</a><a class="nav-cta" href="#inquiry">Contact</a></div></div></nav></div></header>
 <main>
