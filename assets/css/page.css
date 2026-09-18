@@ -32,3 +32,12 @@ header, nav { max-width: 100%; overflow: hidden; }
 .education-location{color:var(--muted);font-size:14px;margin-top:5px}
 .education-divider{height:1px;background:var(--line);margin:28px 0}
 .whatsapp-link{display:inline-flex;align-items:center;gap:9px}
+.company-logo-mark img[src*="cognizant"] {
+  width: 78px;
+  height: 30px;
+  padding: 4px 6px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid #dce4ec;
+  border-radius: 4px;
+}
